@@ -5,10 +5,12 @@ import com.sparta.assignment_lv1.dto.NoteResponseDto;
 import com.sparta.assignment_lv1.entity.Note;
 import com.sparta.assignment_lv1.repository.NoteRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,15 +26,22 @@ public class NoteService {
     }
 
     @Transactional
-    public List<Note> getNotes() { //전체
-        return noteRepository.findAllByOrderByModifiedAtDesc();
+    public List<NoteResponseDto> getNotes() { //전체
+//        return noteRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream().map(NoteResponseDto::new).collect(Collectors.toList());
+        List<NoteResponseDto> notes = noteRepository.findAllByOrderByModifiedAtDesc()
+                .stream()
+                .map(NoteResponseDto::new)
+                .collect(Collectors.toList());
+        return notes;
     }
 
-    public Note getNote(Long id) { // 선택조회
+
+
+    public NoteResponseDto getNote(Long id) { // 선택조회
         Note entity = noteRepository.findById(id).orElseThrow(
                 () -> new IllegalArgumentException("해당 게시물이 없습니다. id=" + id)
         );
-        return entity;
+        return new NoteResponseDto(entity);
     }
 
 
@@ -46,7 +55,7 @@ public class NoteService {
         }
 
         note.update(requestDto);
-        return new NoteResponseDto(note.getTitle(),note.getUserName(),note.getContents());
+        return new NoteResponseDto(note);
     }
 
 //    @Transactional

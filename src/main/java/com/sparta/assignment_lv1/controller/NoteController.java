@@ -1,9 +1,11 @@
 package com.sparta.assignment_lv1.controller;
 
+import com.sparta.assignment_lv1.dto.MsgAndHttpStatusDto;
 import com.sparta.assignment_lv1.dto.NoteRequestDto;
 import com.sparta.assignment_lv1.dto.NoteResponseDto;
 import com.sparta.assignment_lv1.entity.Note;
 import com.sparta.assignment_lv1.serivce.NoteService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -16,7 +18,7 @@ import java.util.Map;
  */
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(("/api"))
+@RequestMapping("/api")
 public class NoteController {
 
     private final NoteService noteService;
@@ -33,8 +35,8 @@ public class NoteController {
     }
 
     @PostMapping("/note") //  게시글 작성
-    private Note createNote(@RequestBody NoteRequestDto requestDto) {
-        return noteService.createNote(requestDto);
+    private Note createNote(@RequestBody NoteRequestDto requestDto, HttpServletRequest request) {
+        return noteService.createNote(requestDto, request);
     }
 
     @GetMapping("/note/{id}") // 선택한 게시글 조회 -> 코드 수정 및 HTML 수정 필요
@@ -44,8 +46,8 @@ public class NoteController {
 
 
     @PutMapping("/note/{id}") //  선택한 게시글 수정
-    public NoteResponseDto updateNote(@PathVariable Long id, @RequestBody NoteRequestDto requestDto) {
-        return noteService.updateNote(id, requestDto);
+    public NoteResponseDto updateNote(@PathVariable Long id, @RequestBody NoteRequestDto requestDto, HttpServletRequest request) {
+        return noteService.updateNote(id, requestDto,request);
     }
 
 //    @PutMapping("/api/note/{id}") //  선택한 게시글 수정
@@ -54,9 +56,8 @@ public class NoteController {
 //    }
 
     @DeleteMapping("/note/{id}") //  선택한 게시글 삭제
-    public String deleteNote(@PathVariable Long id, @RequestBody Map<String, String> requestBody) {
-        String password = requestBody.get("password");
-        return noteService.deleteNote(id, password);
+    public MsgAndHttpStatusDto deleteNote(@PathVariable Long id, HttpServletRequest request) {
+        return noteService.deleteNote(id,request);
     }
     //이 코드에서는 @RequestBody 어노테이션을 사용하여 Map<String, String> 타입의 객체를 주입받고,
     // 해당 객체에서 get() 메서드를 사용하여 "password" 필드의 값을 추출

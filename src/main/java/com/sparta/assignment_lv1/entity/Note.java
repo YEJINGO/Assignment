@@ -1,9 +1,8 @@
 package com.sparta.assignment_lv1.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sparta.assignment_lv1.dto.NoteRequestDto;
-import com.sparta.assignment_lv1.dto.NoteResponseDto;
 import jakarta.persistence.*;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,32 +12,33 @@ import lombok.NoArgsConstructor;
 public class Note extends Timestamped {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String title;
-    @Column(nullable = false)
-    private String userName;
+    @Column
+    private String username;
     @Column(nullable = false)
     private String contents;
-    @Column(nullable = false)
+    @Column
 //    @JsonIgnore
     private String password;
 
+    @Column
+    private Long userId;
 
-    public Note(NoteRequestDto requestDto) {
-        this.userName = requestDto.getUserName();
+    public Note(NoteRequestDto requestDto, User user) {
+        this.username = user.getUsername();
         this.title = requestDto.getTitle();
-        this.password = requestDto.getPassword();
+        this.password = user.getPassword();
         this.contents = requestDto.getContents();
+        this.userId = user.getId();
     }
 
     public void update(NoteRequestDto requestDto) {
-        this.userName = requestDto.getUserName();
         this.title = requestDto.getTitle();
         this.contents = requestDto.getContents();
-        this.password = requestDto.getPassword();
 
     }
 

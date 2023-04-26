@@ -4,17 +4,20 @@ import com.sparta.assignment_lv1.dto.LoginRequestDto;
 import com.sparta.assignment_lv1.dto.SignupRequestDto;
 import com.sparta.assignment_lv1.entity.User;
 import com.sparta.assignment_lv1.entity.UserRoleEnum;
+import com.sparta.assignment_lv1.enums.CustomException;
+import com.sparta.assignment_lv1.enums.ErrorCode;
 import com.sparta.assignment_lv1.jwt.JwtUtil;
 import com.sparta.assignment_lv1.repository.UserRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
-@RestController
+
 @RequiredArgsConstructor
+@Service
 public class UserService {
 
     private final UserRepository userRepository;
@@ -28,13 +31,13 @@ public class UserService {
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(username);
         if (found.isPresent()) {
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
+            throw new CustomException(ErrorCode.DUPLICATION);
         }
 
         UserRoleEnum role = UserRoleEnum.USER;
         if (signupRequestDto.isAdmin()) {
             if (!signupRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
-                throw new IllegalArgumentException("관리자 암호가 틀려 등록이 불가능합니다.");
+                throw  new CustomException(ErrorCode.WRONG_ADMIN_TOKEN);
             }
             role = UserRoleEnum.ADMIN;
         }
@@ -50,11 +53,11 @@ public class UserService {
 
         // 사용자 확인
         User user = userRepository.findByUsername(username).orElseThrow(
-                () -> new IllegalArgumentException("등록된 사용자가 아닙니다. "));
+                () -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
         //비밀번호 확인
         if (!user.getPassword().equals(password)) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.WRONG_PASSWORD);
         }
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getRole()));
         //response.cookie : 쿠키에 담아서 보내는 것

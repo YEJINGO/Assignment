@@ -1,5 +1,6 @@
 package com.sparta.assignment_lv1.serivce;
 
+import com.sparta.assignment_lv1.dto.CommentResponseDto;
 import com.sparta.assignment_lv1.dto.MsgAndHttpStatusDto;
 import com.sparta.assignment_lv1.dto.NoteRequestDto;
 import com.sparta.assignment_lv1.dto.NoteResponseDto;
@@ -20,7 +21,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,12 +63,18 @@ public class NoteService {
 
     public List<NoteResponseDto> getNotes() { //전체
 
-        List<NoteResponseDto> notes = noteRepository.findAllByOrderByModifiedAtDesc()
-                .stream()
-                .map(NoteResponseDto::new)
-                .collect(Collectors.toList());
-        return notes;
+        List<Note> notes = noteRepository.findAllByOrderByModifiedAtDesc();
+        List<NoteResponseDto> NoteResponseDtoList = new ArrayList<>();
+
+
+        for (Note note : notes) {
+            List<Comment> comments = commentRepository.findByNote_IdOrderByModifiedAtDesc(note.getId());
+            note.addComment(comments);
+            NoteResponseDtoList.add(new NoteResponseDto(note));
+        }
+        return NoteResponseDtoList;
     }
+
 
 
     public NoteResponseDto getNote(Long id) { // 선택조회

@@ -28,7 +28,7 @@ public class Comment extends Timestamped {
         this.user = user;
     }
 
-    public void setBoard(Note note) {
+    public void setNote(Note note) {
         this.note = note;
     }
 

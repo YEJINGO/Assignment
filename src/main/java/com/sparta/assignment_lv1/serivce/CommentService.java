@@ -2,6 +2,7 @@ package com.sparta.assignment_lv1.serivce;
 
 import com.sparta.assignment_lv1.dto.CommentRequestDto;
 import com.sparta.assignment_lv1.dto.CommentResponseDto;
+import com.sparta.assignment_lv1.dto.MsgAndHttpStatusDto;
 import com.sparta.assignment_lv1.entity.Comment;
 import com.sparta.assignment_lv1.entity.Note;
 import com.sparta.assignment_lv1.entity.User;
@@ -15,6 +16,7 @@ import com.sparta.assignment_lv1.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -118,7 +120,7 @@ public class CommentService {
         }
 
 
-        public CustomException deleteComment (Long id, HttpServletRequest request){
+        public MsgAndHttpStatusDto deleteComment (Long id, HttpServletRequest request){
             String token = jwtUtil.resolveToken(request); // 토큰 가져오기
 
             if (token != null) {
@@ -138,7 +140,7 @@ public class CommentService {
 
                 if (comment.getUser().getId() == user.getId() || user.getRole().equals(UserRoleEnum.ADMIN)) {
                     commentRepository.deleteById(id);
-                    return new CustomException(ErrorCode.SUCCESS_COMMENT_DELETE);
+                    return new MsgAndHttpStatusDto("댓글이 삭제되었습니다.", HttpStatus.OK.value());
                 } else {
                     throw new CustomException(ErrorCode.ONLY_CAN_DELETE_COMMENT);
                 }

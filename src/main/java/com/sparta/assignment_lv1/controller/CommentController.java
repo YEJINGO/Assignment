@@ -2,7 +2,7 @@ package com.sparta.assignment_lv1.controller;
 
 import com.sparta.assignment_lv1.dto.CommentRequestDto;
 import com.sparta.assignment_lv1.dto.CommentResponseDto;
-import com.sparta.assignment_lv1.enums.CustomException;
+import com.sparta.assignment_lv1.dto.MsgAndHttpStatusDto;
 import com.sparta.assignment_lv1.serivce.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class CommentController {
     }
 
     @DeleteMapping("{id}")
-    public CustomException deleteComment(@PathVariable Long id, HttpServletRequest request) {
+    public MsgAndHttpStatusDto deleteComment(@PathVariable Long id, HttpServletRequest request) {
         return commentService.deleteComment(id, request);
     }
 }

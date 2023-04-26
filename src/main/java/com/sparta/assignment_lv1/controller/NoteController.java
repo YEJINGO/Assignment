@@ -1,5 +1,6 @@
 package com.sparta.assignment_lv1.controller;
 
+import com.sparta.assignment_lv1.dto.MsgAndHttpStatusDto;
 import com.sparta.assignment_lv1.dto.NoteRequestDto;
 import com.sparta.assignment_lv1.dto.NoteResponseDto;
 import com.sparta.assignment_lv1.entity.Note;
@@ -55,7 +56,7 @@ public class NoteController {
 //    }
 
     @DeleteMapping("/note/{id}") //  선택한 게시글 삭제
-    public CustomException deleteNote(@PathVariable Long id, HttpServletRequest request) {
+    public MsgAndHttpStatusDto deleteNote(@PathVariable Long id, HttpServletRequest request) {
         return noteService.deleteNote(id,request);
     }
     //이 코드에서는 @RequestBody 어노테이션을 사용하여 Map<String, String> 타입의 객체를 주입받고,

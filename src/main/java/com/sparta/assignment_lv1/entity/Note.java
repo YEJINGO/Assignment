@@ -36,7 +36,7 @@ public class Note extends Timestamped {
     @OneToMany(mappedBy = "note", cascade = CascadeType.ALL) // mappedBy의 속성값은 외래키의 주인인 상대 Entity 의 필드명을 의미한다. note 는 연관관계 주인이 가지고 있는 필드명이다. -> comment의 user를 의미
     private List<Comment> comments = new ArrayList<>();
 
-    public void addUser(User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 

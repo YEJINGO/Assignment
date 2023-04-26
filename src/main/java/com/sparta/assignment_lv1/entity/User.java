@@ -7,6 +7,10 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+/**
+ * @validation 사용해서 아이디, 비번 조건 만들어보기
+ * 정규식 특수문자 다시 확인해보기
+ */
 @Getter
 @NoArgsConstructor
 @Entity(name ="users")
@@ -21,9 +25,9 @@ public class User {
     @Pattern(regexp = "^[a-z0-9]*$") //정규식에서 *$는 문자열의 끝부분에서 0번 이상의 모든 문자를 나타낸다.
     private String username;
     @Column(nullable = false)
-    @Size(min=8, max=15, message = "비밀번호는 최소 8자 이상, 15자 이하로 만들어야 합니다.")
-    @Pattern(regexp = "^[a-zA-Z0-9]*$")
-    private String password;
+//    @Size(min=8, max=15, message = "비밀번호는 최소 8자 이상, 15자 이하로 만들어야 합니다.")
+    @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-zA-Z])(?=.*\\W)(?=\\S+$).{8,15}$", message="비밀번호를 8~15자로 입력해주세요.(특수문자o)")
+    String password;
 
     @Column(nullable = false)
     @Enumerated(value = EnumType.STRING)

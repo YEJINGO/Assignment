@@ -1,6 +1,7 @@
 package com.sparta.assignment_lv1.jwt;
 
 import com.sparta.assignment_lv1.entity.UserRoleEnum;
+import com.sparta.assignment_lv1.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SecurityException;
@@ -9,6 +10,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -29,6 +33,8 @@ public class JwtUtil {
 
     // Token 식별자: Token 을 만들 때, 앞에 들어가는 부분
     private static final String BEARER_PREFIX = "Bearer ";
+
+    private final UserDetailsServiceImpl userDetailsService;
 
     // 토큰 만료시간: 밀리세컨드 기준. 60 * 1000L는 1분. 60 * 60 * 1000L는 1시간
     private static final long TOKEN_TIME = 60 * 60 * 1000L;
@@ -109,10 +115,14 @@ public class JwtUtil {
         return false;
     }
 
-    // 토큰에서 사용자 정보 가져오기
     // 토큰에서 사용자 정보 가져오기 --> 위에서 validateToken() 으로 토큰을 검증했기에 이 코드를 사용할 수 있는 것
     public Claims getUserInfoFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+    }
+
+    public Authentication createAuthentication(String username) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 
 

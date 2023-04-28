@@ -13,14 +13,14 @@ import com.sparta.assignment_lv1.jwt.JwtUtil;
 import com.sparta.assignment_lv1.repository.CommentRepository;
 import com.sparta.assignment_lv1.repository.NoteRepository;
 import com.sparta.assignment_lv1.repository.UserRepository;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
+import com.sparta.assignment_lv1.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,118 +33,54 @@ public class CommentService {
 
 
     @Transactional
-    public CommentResponseDto createComment(Long id, CommentRequestDto commentRequestDto, HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request); // 토큰 가져오기
+    public CommentResponseDto createComment(Long id, CommentRequestDto commentRequestDto, UserDetailsImpl userDetails) {
 
-        Note note = noteRepository.findById(id).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_NOTE)
-        );
+        Note note = noteRepository.findById(id).orElseThrow(()
+                -> new CustomException(ErrorCode.NOT_FOUND_NOTE));
 
-        if (token != null) {
-            Claims claims;
-            if (jwtUtil.validateToken(token)) {
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                throw new IllegalArgumentException("Token Error");
-            }
+        Comment comment = new Comment(commentRequestDto, note, userDetails.getUser());
+        commentRepository.save(comment);
 
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    //매개변수가 의도치 않는 상황 유발시
-                    () -> new CustomException(ErrorCode.NOT_FOUND_USER)
-            );
-            Comment comment = new Comment(commentRequestDto, note, user);
-
-            commentRepository.save(comment);
-            CommentResponseDto commentResponseDto = new CommentResponseDto(comment);
-            return commentResponseDto;
-
-        } else {
-            throw new CustomException(ErrorCode.INVALID_TOKEN);
-        }
+        return new CommentResponseDto(comment);
     }
 
-    public List<CommentResponseDto> getComments(Long id, HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request); // 토큰 가져오기
-        Note note = noteRepository.findById(id).orElseThrow(
-                () -> new CustomException(ErrorCode.NOT_FOUND_NOTE)
-        );
-        if (token != null) {
-            Claims claims;
-            if (jwtUtil.validateToken(token)) {
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                throw new IllegalArgumentException("Token Error");
-            }
-            User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                    //매개변수가 의도치 않는 상황 유발시
-                    () -> new  CustomException(ErrorCode.NOT_FOUND_USER)
-            );
-            List<CommentResponseDto> comments = commentRepository.findAllByOrderByModifiedAtDesc()
-                    .stream()
-                    .map(CommentResponseDto::new)
-                    .collect(Collectors.toList());
-            return comments;
+
+    public List<CommentResponseDto> getComments(Long id) {
+
+        List<CommentResponseDto> comments = commentRepository.findByNote_IdOrderByModifiedAtDesc(id)
+                .stream()
+                .map(CommentResponseDto::new)
+                .collect(Collectors.toList());
+        return comments;
+    }
+
+    public CommentResponseDto updateComment(Long id, CommentRequestDto commentRequestDto, UserDetailsImpl userDetails) {
+
+        User user = userDetails.getUser();
+        Comment comment = commentRepository.findById(id).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_FOUND_UPDATE_COMMENT));
+
+        if (comment.getUser().getId() == user.getId() ||user.getRole().equals(UserRoleEnum.ADMIN)) {
+            comment.updateComment(commentRequestDto);
+            commentRepository.save(comment);
+            return new CommentResponseDto(comment);
         }
         return null;
     }
 
 
-    public CommentResponseDto updateComment(Long id, CommentRequestDto commentRequestDto, HttpServletRequest request) {
-        String token = jwtUtil.resolveToken(request); // 토큰 가져오기
+    public MsgAndHttpStatusDto deleteComment(Long id, UserDetailsImpl userDetails) {
 
-        if (token != null) {
-            Claims claims;
-            if (jwtUtil.validateToken(token)) {
-                claims = jwtUtil.getUserInfoFromToken(token);
-            } else {
-                throw new IllegalArgumentException("Token Error");
-                }
+        User user = userDetails.getUser();
+        Comment comment = commentRepository.findById(id).orElseThrow(() ->
+                new CustomException(ErrorCode.NOT_FOUND_Delete_COMMENT));
 
-                User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                        //매개변수가 의도치 않는 상황 유발시
-                        () -> new CustomException(ErrorCode.NOT_FOUND_USER)
-                );
-
-                Comment comment = commentRepository.findById(id).orElseThrow(() ->
-                        new CustomException(ErrorCode.NOT_FOUND_UPDATE_COMMENT));
-
-                if (comment.getUser().getId() == user.getId() || user.getRole().equals(UserRoleEnum.ADMIN)) {
-                    comment.updateComment(commentRequestDto);
-                    commentRepository.save(comment);
-                    return new CommentResponseDto(comment);
-                } else {
-                    throw new CustomException(ErrorCode.ONLY_CAN_UPDATE_COMMENT);
-                }
-            }
-            return null;
-        }
-
-
-        public MsgAndHttpStatusDto deleteComment (Long id, HttpServletRequest request){
-            String token = jwtUtil.resolveToken(request); // 토큰 가져오기
-
-            if (token != null) {
-                Claims claims;
-                if (jwtUtil.validateToken(token)) {
-                    claims = jwtUtil.getUserInfoFromToken(token);
-                } else {
-                    throw new IllegalArgumentException("Token Error");
-                }
-                User user = userRepository.findByUsername(claims.getSubject()).orElseThrow(
-                        //매개변수가 의도치 않는 상황 유발시
-                        () -> new CustomException(ErrorCode.NOT_FOUND_USER)
-                );
-
-                Comment comment = commentRepository.findById(id).orElseThrow(() ->
-                        new CustomException(ErrorCode.NOT_FOUND_Delete_COMMENT));
-
-                if (comment.getUser().getId() == user.getId() || user.getRole().equals(UserRoleEnum.ADMIN)) {
-                    commentRepository.deleteById(id);
-                    return new MsgAndHttpStatusDto("댓글이 삭제되었습니다.", HttpStatus.OK.value());
-                } else {
-                    throw new CustomException(ErrorCode.ONLY_CAN_DELETE_COMMENT);
-                }
-            }
-            return null;
+        if (Objects.equals(comment.getUser().getId(), user.getId()) || user.getRole().equals(UserRoleEnum.ADMIN)) {
+            commentRepository.deleteById(id);
+            return new MsgAndHttpStatusDto("댓글이 삭제되었습니다.", HttpStatus.OK.value());
+        } else {
+            throw new CustomException(ErrorCode.ONLY_CAN_DELETE_COMMENT);
         }
     }
+}
+

@@ -4,12 +4,12 @@ import com.sparta.assignment_lv1.dto.MsgAndHttpStatusDto;
 import com.sparta.assignment_lv1.dto.NoteRequestDto;
 import com.sparta.assignment_lv1.dto.NoteResponseDto;
 import com.sparta.assignment_lv1.entity.Note;
-import com.sparta.assignment_lv1.enums.CustomException;
+import com.sparta.assignment_lv1.security.UserDetailsImpl;
 import com.sparta.assignment_lv1.serivce.NoteService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -23,31 +23,25 @@ public class NoteController {
 
     private final NoteService noteService;
 
-    @GetMapping("/") // 처음 홈페이지
-    public ModelAndView home() {
-        return new ModelAndView("index");
-    }
-
-
     @GetMapping("/notes") //  전체 게시물 목록 조회
-    public List<NoteResponseDto> getNotes() {
+    public ResponseEntity<List<NoteResponseDto>> getNotes() {
         return noteService.getNotes();
     }
 
     @PostMapping("/note") //  게시글 작성
-    private Note createNote(@RequestBody NoteRequestDto requestDto, HttpServletRequest request) {
-        return noteService.createNote(requestDto, request);
+    private ResponseEntity<Note> createNote(@RequestBody NoteRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return noteService.createNote(requestDto, userDetails);
     }
 
     @GetMapping("/note/{id}") // 선택한 게시글 조회 -> 코드 수정 및 HTML 수정 필요
-    public NoteResponseDto getNote(@PathVariable Long id) {
+    public ResponseEntity<NoteResponseDto> getNote(@PathVariable Long id) {
         return noteService.getNote(id);
     }
 
 
     @PutMapping("/note/{id}") //  선택한 게시글 수정
-    public NoteResponseDto updateNote(@PathVariable Long id, @RequestBody NoteRequestDto requestDto, HttpServletRequest request) {
-        return noteService.updateNote(id, requestDto,request);
+    public ResponseEntity<NoteResponseDto> updateNote(@PathVariable Long id, @RequestBody NoteRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return noteService.updateNote(id, requestDto, userDetails);
     }
 
 //    @PutMapping("/api/note/{id}") //  선택한 게시글 수정
@@ -56,8 +50,8 @@ public class NoteController {
 //    }
 
     @DeleteMapping("/note/{id}") //  선택한 게시글 삭제
-    public MsgAndHttpStatusDto deleteNote(@PathVariable Long id, HttpServletRequest request) {
-        return noteService.deleteNote(id,request);
+    public ResponseEntity<MsgAndHttpStatusDto> deleteNote(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return noteService.deleteNote(id, userDetails);
     }
     //이 코드에서는 @RequestBody 어노테이션을 사용하여 Map<String, String> 타입의 객체를 주입받고,
     // 해당 객체에서 get() 메서드를 사용하여 "password" 필드의 값을 추출

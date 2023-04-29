@@ -33,15 +33,15 @@ public class NoteController {
         return noteService.createNote(requestDto, userDetails);
     }
 
-    @GetMapping("/note/{id}") // 선택한 게시글 조회 -> 코드 수정 및 HTML 수정 필요
-    public ResponseEntity<NoteResponseDto> getNote(@PathVariable Long id) {
-        return noteService.getNote(id);
+    @GetMapping("/note/{note_id}") // 선택한 게시글 조회 -> 코드 수정 및 HTML 수정 필요
+    public ResponseEntity<NoteResponseDto> getNote(@PathVariable Long note_id) {
+        return noteService.getNote(note_id);
     }
 
 
-    @PutMapping("/note/{id}") //  선택한 게시글 수정
-    public ResponseEntity<NoteResponseDto> updateNote(@PathVariable Long id, @RequestBody NoteRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return noteService.updateNote(id, requestDto, userDetails);
+    @PutMapping("/note/{note_id}") //  선택한 게시글 수정
+    public ResponseEntity<NoteResponseDto> updateNote(@PathVariable Long note_id, @RequestBody NoteRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return noteService.updateNote(note_id, requestDto, userDetails);
     }
 
 //    @PutMapping("/api/note/{id}") //  선택한 게시글 수정
@@ -49,9 +49,9 @@ public class NoteController {
 //        return noteService.updateNote(id, responseDto);
 //    }
 
-    @DeleteMapping("/note/{id}") //  선택한 게시글 삭제
-    public ResponseEntity<MsgAndHttpStatusDto> deleteNote(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return noteService.deleteNote(id, userDetails);
+    @DeleteMapping("/note/{note_id}") //  선택한 게시글 삭제
+    public ResponseEntity<MsgAndHttpStatusDto> deleteNote(@PathVariable Long note_id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return noteService.deleteNote(note_id, userDetails);
     }
     //이 코드에서는 @RequestBody 어노테이션을 사용하여 Map<String, String> 타입의 객체를 주입받고,
     // 해당 객체에서 get() 메서드를 사용하여 "password" 필드의 값을 추출

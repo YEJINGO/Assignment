@@ -24,4 +24,5 @@ public class LikeController {
     public ResponseEntity updateCommentLike(@PathVariable Long comment_id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return likeService.updateCommentLike(comment_id, userDetails);
     }
+}
 

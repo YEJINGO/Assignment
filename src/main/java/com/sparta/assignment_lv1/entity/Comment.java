@@ -4,6 +4,8 @@ import com.sparta.assignment_lv1.dto.CommentRequestDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity(name = "comments")
 @Getter
@@ -23,6 +25,9 @@ public class Comment extends Timestamped {
     @ManyToOne(targetEntity = User.class)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "comment")
+    private List<Likes> likes = new ArrayList<>();
 
     public void setUser(User user) {
         this.user = user;

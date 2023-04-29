@@ -6,6 +6,7 @@ import com.sparta.assignment_lv1.dto.MsgAndHttpStatusDto;
 import com.sparta.assignment_lv1.security.UserDetailsImpl;
 import com.sparta.assignment_lv1.serivce.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,25 +19,25 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/{id}")
-    public CommentResponseDto createComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return commentService.createComment(id, requestDto, userDetails);
+    @PostMapping("/{commentId}")
+    public ResponseEntity<CommentResponseDto> createComment(@PathVariable Long commentId, @RequestBody CommentRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.createComment(commentId, requestDto, userDetails);
     }
 
     //해당 게시글의 모든 댓글 가져오기 오름차순
-    @GetMapping("/note/{id}")
-    public List<CommentResponseDto> getComments(@PathVariable Long id) {
-        return commentService.getComments(id);
+    @GetMapping("/note/{commentId}")
+    public ResponseEntity<List<CommentResponseDto>> getComments(@PathVariable Long commentId) {
+        return commentService.getComments(commentId);
     }
 
 
-    @PutMapping("/{id}")
-    public CommentResponseDto updateComment(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return commentService.updateComment(id, requestDto, userDetails);
+    @PutMapping("/{commentId}")
+    public ResponseEntity<CommentResponseDto> updateComment(@PathVariable Long commentId, @RequestBody CommentRequestDto requestDto, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.updateComment(commentId, requestDto, userDetails);
     }
 
-    @DeleteMapping("{id}")
-    public MsgAndHttpStatusDto deleteComment(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        return commentService.deleteComment(id, userDetails);
+    @DeleteMapping("{commentId}")
+    public ResponseEntity<MsgAndHttpStatusDto> deleteComment(@PathVariable Long commentId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return commentService.deleteComment(commentId, userDetails);
     }
 }

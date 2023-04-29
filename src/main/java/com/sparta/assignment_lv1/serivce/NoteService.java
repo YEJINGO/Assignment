@@ -54,9 +54,9 @@ public class NoteService {
     }
 
 
-    public ResponseEntity<NoteResponseDto> getNote(Long id) { // 선택조회
+    public ResponseEntity<NoteResponseDto> getNote(Long note_id) { // 선택조회
 
-        Note entity = noteRepository.findById(id).orElseThrow(
+        Note entity = noteRepository.findById(note_id).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND_NOTE));
 
         List<Comment> comments = commentRepository.findByNote_IdOrderByModifiedAtDesc(entity.getId());
@@ -66,8 +66,8 @@ public class NoteService {
     }
 
     @Transactional
-    public ResponseEntity<NoteResponseDto> updateNote(Long id, NoteRequestDto requestDto, UserDetailsImpl userDetails) {
-        Note note = noteRepository.findById(id).orElseThrow(
+    public ResponseEntity<NoteResponseDto> updateNote(Long note_id, NoteRequestDto requestDto, UserDetailsImpl userDetails) {
+        Note note = noteRepository.findById(note_id).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND_UPDATE_NOTE));
 
         User user = userDetails.getUser();
@@ -82,9 +82,9 @@ public class NoteService {
     }
 
     @Transactional
-    public ResponseEntity<MsgAndHttpStatusDto> deleteNote(Long id, UserDetailsImpl userDetails) {
+    public ResponseEntity<MsgAndHttpStatusDto> deleteNote(Long note_id, UserDetailsImpl userDetails) {
 
-        Note note = noteRepository.findById(id).orElseThrow(
+        Note note = noteRepository.findById(note_id).orElseThrow(
                 () -> new CustomException(ErrorCode.NOT_FOUND_NOTE)
         );
 

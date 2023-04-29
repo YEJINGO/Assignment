@@ -11,11 +11,13 @@ import com.sparta.assignment_lv1.enums.CustomException;
 import com.sparta.assignment_lv1.enums.ErrorCode;
 import com.sparta.assignment_lv1.jwt.JwtUtil;
 import com.sparta.assignment_lv1.repository.CommentRepository;
+import com.sparta.assignment_lv1.repository.LikeRepository;
 import com.sparta.assignment_lv1.repository.NoteRepository;
 import com.sparta.assignment_lv1.repository.UserRepository;
 import com.sparta.assignment_lv1.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,57 +29,55 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CommentService {
     private final CommentRepository commentRepository;
-    private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
     private final NoteRepository noteRepository;
 
 
     @Transactional
-    public CommentResponseDto createComment(Long id, CommentRequestDto commentRequestDto, UserDetailsImpl userDetails) {
+    public ResponseEntity<CommentResponseDto> createComment(Long commentId, CommentRequestDto commentRequestDto, UserDetailsImpl userDetails) {
 
-        Note note = noteRepository.findById(id).orElseThrow(()
+        Note note = noteRepository.findById(commentId).orElseThrow(()
                 -> new CustomException(ErrorCode.NOT_FOUND_NOTE));
 
         Comment comment = new Comment(commentRequestDto, note, userDetails.getUser());
         commentRepository.save(comment);
 
-        return new CommentResponseDto(comment);
+        return ResponseEntity.ok(new CommentResponseDto(comment));
     }
 
 
-    public List<CommentResponseDto> getComments(Long id) {
+    public ResponseEntity<List<CommentResponseDto>> getComments(Long commentId) {
 
-        List<CommentResponseDto> comments = commentRepository.findByNote_IdOrderByModifiedAtDesc(id)
+        List<CommentResponseDto> comments = commentRepository.findByNote_IdOrderByModifiedAtDesc(commentId)
                 .stream()
                 .map(CommentResponseDto::new)
                 .collect(Collectors.toList());
-        return comments;
+
+        return ResponseEntity.ok(comments);
     }
 
-    public CommentResponseDto updateComment(Long id, CommentRequestDto commentRequestDto, UserDetailsImpl userDetails) {
+    public ResponseEntity<CommentResponseDto> updateComment(Long commentId, CommentRequestDto commentRequestDto, UserDetailsImpl userDetails) {
 
         User user = userDetails.getUser();
-        Comment comment = commentRepository.findById(id).orElseThrow(() ->
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_FOUND_UPDATE_COMMENT));
 
-        if (comment.getUser().getId() == user.getId() ||user.getRole().equals(UserRoleEnum.ADMIN)) {
+        if (comment.getUser().getId() == user.getId() || user.getRole().equals(UserRoleEnum.ADMIN)) {
             comment.updateComment(commentRequestDto);
             commentRepository.save(comment);
-            return new CommentResponseDto(comment);
+            return ResponseEntity.ok(new CommentResponseDto(comment));
         }
         return null;
     }
 
-
-    public MsgAndHttpStatusDto deleteComment(Long id, UserDetailsImpl userDetails) {
+    public ResponseEntity<MsgAndHttpStatusDto> deleteComment(Long commentId, UserDetailsImpl userDetails) {
 
         User user = userDetails.getUser();
-        Comment comment = commentRepository.findById(id).orElseThrow(() ->
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() ->
                 new CustomException(ErrorCode.NOT_FOUND_Delete_COMMENT));
 
         if (Objects.equals(comment.getUser().getId(), user.getId()) || user.getRole().equals(UserRoleEnum.ADMIN)) {
-            commentRepository.deleteById(id);
-            return new MsgAndHttpStatusDto("댓글이 삭제되었습니다.", HttpStatus.OK.value());
+            commentRepository.deleteById(commentId);
+            return ResponseEntity.ok(new MsgAndHttpStatusDto("댓글이 삭제되었습니다.", HttpStatus.OK.value()));
         } else {
             throw new CustomException(ErrorCode.ONLY_CAN_DELETE_COMMENT);
         }

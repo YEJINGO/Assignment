@@ -22,6 +22,8 @@ public enum ErrorCode {
     , ONLY_CAN_UPDATE_COMMENT(400, "OnlyCanUpdateComment", "해당 사용자가 작성인 혹은 관리자가 아니라면, 댓글을 수정할 수 없습니다.")
     , NOT_FOUND_Delete_COMMENT(400, "NotFoundDeleteComment", "삭제하고자 하는 댓글이 없습니다.")
     , ONLY_CAN_DELETE_COMMENT(400, "OnlyCanUpdateComment", "해당 사용자가 작성인 혹은 관리자가 아니라면, 댓글을 삭제할 수 없습니다.")
+    , NOT_VALIDATE_SIGNUP_PASSWORD(400, "NotValidateSignupPassword", "비밀번호는 최소 8자 이상, 15자 이하이며 알파벳 대소문자와 숫자으로 구성되어야 합니다.")
+    , NOT_VALIDATE_SIGNUP_USERNAME(400, "NotValidateSignupUsername", "username은 최소 4자 이상, 10자 이하이며 알파벳 소문자, 숫자로 구성되어야 합니다.")
     ;
 
     private int statusCode;

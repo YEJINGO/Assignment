@@ -1,5 +1,6 @@
 package com.sparta.assignment_lv1.controller;
 
+import com.sparta.assignment_lv1.dto.MsgAndHttpStatusDto;
 import com.sparta.assignment_lv1.security.UserDetailsImpl;
 import com.sparta.assignment_lv1.serivce.LikeService;
 import lombok.RequiredArgsConstructor;
@@ -15,13 +16,13 @@ public class LikeController {
     private final LikeService likeService;
 
     @PutMapping("/like/note/{note_id}")
-    public ResponseEntity updateNoteLike(@PathVariable Long note_id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<MsgAndHttpStatusDto> updateNoteLike(@PathVariable Long note_id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return likeService.updateNoteLike(note_id, userDetails);
     }
 
 
     @PutMapping("/like/comment/{comment_id}")
-    public ResponseEntity updateCommentLike(@PathVariable Long comment_id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    public ResponseEntity<MsgAndHttpStatusDto> updateCommentLike(@PathVariable Long comment_id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         return likeService.updateCommentLike(comment_id, userDetails);
     }
 }

@@ -31,7 +31,6 @@ public class UserService {
     public void signup(SignupRequestDto signupRequestDto) {
         String username = signupRequestDto.getUsername();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
-
         // 회원 중복 확인
         Optional<User> found = userRepository.findByUsername(username);
         if (found.isPresent()) {
@@ -41,7 +40,7 @@ public class UserService {
         UserRoleEnum role = UserRoleEnum.USER;
         if (signupRequestDto.isAdmin()) {
             if (!signupRequestDto.getAdminToken().equals(ADMIN_TOKEN)) {
-                throw  new CustomException(ErrorCode.WRONG_ADMIN_TOKEN);
+                throw new CustomException(ErrorCode.WRONG_ADMIN_TOKEN);
             }
             role = UserRoleEnum.ADMIN;
         }
@@ -60,7 +59,7 @@ public class UserService {
                 () -> new CustomException(ErrorCode.NOT_FOUND_USER));
 
         //비밀번호 확인
-        if (!passwordEncoder.matches(password,user.getPassword())) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new CustomException(ErrorCode.WRONG_PASSWORD);
         }
         response.addHeader(JwtUtil.AUTHORIZATION_HEADER, jwtUtil.createToken(user.getUsername(), user.getRole()));
